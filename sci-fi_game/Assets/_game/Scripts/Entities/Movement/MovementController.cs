@@ -1,6 +1,8 @@
 using Game.Entities.Data;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.XR;
+using UnityEngine.Windows;
 
 
 namespace Game.Entities.Movement {
@@ -8,14 +10,15 @@ namespace Game.Entities.Movement {
     [RequireComponent(typeof(Rigidbody))]
     public class MovementController : MonoBehaviour {
 
-        public Vector2 MoveDirection { get => _directionSource.Direction; }
+        public MovementData MovementData { get => _movementData; }
+        public Vector2 MovementDirection { get => _directionSource.Direction; }
 
         [SerializeField] private MonoBehaviour _directionSourceClass;
-        [SerializeField] private MovementData _movementData;   
+        [SerializeField] private MovementData _movementData;
+        [SerializeField] private float _rotationSpeed;
 
         private IDirectionSource _directionSource;
         private Rigidbody _rigidbody;
-
 
         protected virtual void Awake() {
             _rigidbody = GetComponent<Rigidbody>();
@@ -28,11 +31,16 @@ namespace Game.Entities.Movement {
             }
         }
 
-
         private void FixedUpdate() {
-            _rigidbody.linearVelocity = new Vector3(MoveDirection.x * _movementData.speed, _rigidbody.linearVelocity.y,
-                MoveDirection.y*_movementData.speed);
+
+            _rigidbody.linearVelocity = new Vector3(MovementDirection.x * MovementData.speed, _rigidbody.linearVelocity.y,
+                MovementDirection.y * MovementData.speed);
+
+            if(_rigidbody.linearVelocity.magnitude > 0.1f) {
+                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(/*transform.position +*/ new Vector3(MovementDirection.x, 0, MovementDirection.y)), _rotationSpeed);
+            }
         }
+
 
     }
 
