@@ -8,6 +8,8 @@ namespace Game.Entities.Movement {
     [RequireComponent(typeof(Rigidbody))]
     public class MovementController : MonoBehaviour {
 
+        public Vector2 MoveDirection { get => _directionSource.Direction; }
+
         [SerializeField] private MonoBehaviour _directionSourceClass;
         [SerializeField] private MovementData _movementData;   
 
@@ -28,9 +30,8 @@ namespace Game.Entities.Movement {
 
 
         private void FixedUpdate() {
-            Vector2 moveDirection = _directionSource.Direction;
-            _rigidbody.linearVelocity = new Vector3(moveDirection.x * _movementData.speed, _rigidbody.linearVelocity.y,
-                moveDirection.y*_movementData.speed);
+            _rigidbody.linearVelocity = new Vector3(MoveDirection.x * _movementData.speed, _rigidbody.linearVelocity.y,
+                MoveDirection.y*_movementData.speed);
         }
 
     }
