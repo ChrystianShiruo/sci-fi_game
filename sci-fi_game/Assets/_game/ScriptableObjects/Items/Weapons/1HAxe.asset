@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f73ef24f32b2abd43ac14d84bda05c42, type: 3}
+  m_Name: 1HAxe
+  m_EditorClassIdentifier: 
+  itemName: 1Handed Axe
+  description: Pretty good for chopping wood, shields and people. Commonly associated
+    with raiders, thugs and brutes in general.
+  icon: {fileID: 21300000, guid: 675a64f22a5f9fb44a01d56ab66d3d19, type: 3}
+  prefab: {fileID: 5924197880876737491, guid: b49ecc75a6464674baa519d66a345e6c, type: 3}
+  maxStackAmount: 1
