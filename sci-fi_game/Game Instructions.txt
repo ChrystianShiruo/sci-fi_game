@@ -1,0 +1,12 @@
+Game Instructions
+
+	Movement: WASD/Arrow keys
+	Interact: [E]
+	Open/Close Inventory: [I]
+	Pause: [ESC]
+	Close any Menu: [ESC]
+
+	Inventory
+		Use/Equip: [Right mouse button]
+		Select: [Left mouse button]
+		Delete Selection: [Delete]
