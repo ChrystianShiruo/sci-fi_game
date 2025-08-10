@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f73ef24f32b2abd43ac14d84bda05c42, type: 3}
+  m_Name: Sword
+  m_EditorClassIdentifier: 
+  itemName: 2H Sword
+  description: A classic.
+  icon: {fileID: 21300000, guid: 572da8c884ba9bb4fa442e175bcae530, type: 3}
+  prefab: {fileID: 2188578660889470838, guid: c8823dec7478ee34eb628ea498e833c2, type: 3}
+  maxStackAmount: 1
+  value: 1300

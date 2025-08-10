@@ -6,8 +6,12 @@ namespace Game.Item.Data {
 
     public class WeaponData : ItemData {
         public override UseResult Use() {
-            //equip
-            throw new System.NotImplementedException();
+
+            if(InventoryManager.Instance.TryEquipWeapon(this)) {
+                return new UseResult { InventoryAction = ItemAction.RemoveOne, Success = true };
+            }
+            return new UseResult { InventoryAction = ItemAction.None, Success = false };
+
         }
     }
 }

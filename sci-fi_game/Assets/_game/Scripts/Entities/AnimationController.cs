@@ -1,8 +1,5 @@
 using Game.Entities.Movement;
-using UnityEditor.Animations;
 using UnityEngine;
-using UnityEngine.InputSystem.XR;
-using UnityEngine.Windows;
 
 namespace Game.Entities {
     [RequireComponent(typeof(Animator))]

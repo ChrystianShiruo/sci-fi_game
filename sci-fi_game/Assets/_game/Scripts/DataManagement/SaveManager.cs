@@ -32,6 +32,9 @@ namespace Game.DataManagement {
             File.WriteAllText(_savePath, json);
             Debug.Log("Inventory saved to: " + _savePath);
         }
+        public void DeleteInventorySave() {
+            File.Delete(_savePath);
+        }
 
         public void LoadInventory() {
             if(File.Exists(_savePath)) {

@@ -17,6 +17,9 @@ namespace Game.UI {
         [SerializeField] private GridLayoutGroup _gridLayoutGroup;
         [SerializeField] private GameObject _uiSlotPrefab;
         [SerializeField] private GameObject _uiSelectedSlotPrefab;
+        [Space()]
+        [SerializeField] private InventorySlotUI _equipmentSlotHandR;
+
 
         private InventorySlotUI _draggedSlot;
 
@@ -48,19 +51,23 @@ namespace Game.UI {
             GameStateManager.OnStateChanged += CheckState;
             InitializeUI();
 
-            InventoryManager.Instance.OnInventoryUpdated += UpdateUI;
-            UpdateUI();
+            InventoryManager.Instance.OnInventoryUpdated += UpdateInventory;
+            InventoryManager.Instance.OnEquipmentUpdated += UpdateEquipment;
+            UpdateInventory();
         }
+
+
 
         private void OnDestroy() {
             if(InventoryManager.Instance != null) {
-                InventoryManager.Instance.OnInventoryUpdated -= UpdateUI;
+                InventoryManager.Instance.OnInventoryUpdated -= UpdateInventory;
+                InventoryManager.Instance.OnEquipmentUpdated -= UpdateEquipment;
             }
             GameStateManager.OnStateChanged -= CheckState;
         }
 
         private void OnEnable() {
-            UpdateUI();
+            UpdateInventory();
             if(InputHandler.Instance) {
                 InputHandler.Instance.AddCallback(InputHandler.Instance.UIActions.DeleteSelection, DeleteSelection, InputActionPhase.Performed);
             }
@@ -126,12 +133,15 @@ namespace Game.UI {
             }
         }
 
-        private void UpdateUI() {
+        private void UpdateInventory() {
             foreach(InventorySlotUI slotUI in _uiSlots) {
                 InventorySlot inventorySlot = InventoryManager.Instance.GetSlot(slotUI.Position);
                 slotUI.UpdateVisuals(inventorySlot);
             }
             UpdateSelectionUI();
+        }
+        private void UpdateEquipment() {
+            _equipmentSlotHandR.UpdateVisuals(InventoryManager.Instance.WeaponSlot);
         }
 
         private void UpdateSelectionUI() {
