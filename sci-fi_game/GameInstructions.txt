@@ -1,12 +1,26 @@
 Game Instructions
 
+ - Press E when close to items to pick them up;
+
+ - Using the inventory you can:
+	- Equip valid items with [Use/Equip];
+	- Hover over an item to read a tooltip about it;
+	- Change the items position on the invetory, either by using [Select] on the 2 item slots to swap or by dragging an item to another slot;
+	- Delete an item selected by using [Select] and then [Delete Selection];
+	- Save current Inventory to be loaded on next execution;
+	- Delete current Save in order to have a brand new empty inventory on the next game startup;
+
+[Select] slot is higlighted by a unique marker over the inventory slot;
+
+
+Controls:
 	Movement: WASD/Arrow keys
 	Interact: [E]
 	Open/Close Inventory: [I]
-	Pause: [ESC]
+	Pause Menu: [ESC]
 	Close any Menu: [ESC]
 
-	Inventory
+	Inventory:
 		Use/Equip: [Right mouse button]
 		Select: [Left mouse button]
 		Delete Selection: [Delete]
