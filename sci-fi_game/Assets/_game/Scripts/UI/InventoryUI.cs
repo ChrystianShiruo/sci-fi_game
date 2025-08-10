@@ -2,9 +2,10 @@
 using Game.Input;
 using Game.Inventory;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace Game.UI {
@@ -19,7 +20,7 @@ namespace Game.UI {
         private GameObject _selectionInstance;
         private List<InventorySlotUI> _uiSlots;
         private Vector2Int _currentSelection;
-
+        private readonly Vector2Int _defaultSelectionValue = new Vector2Int(-1, -1);// no selection
         private Vector2Int CurrentSelection {
             get => _currentSelection;
             set {
@@ -30,7 +31,7 @@ namespace Game.UI {
         }
 
         private void Awake() {
-            _currentSelection = new Vector2Int(-1, -1);// no selection
+            CurrentSelection = _defaultSelectionValue;
             _uiSlots = new List<InventorySlotUI>();
             _selectionInstance = Instantiate(_uiSelectedSlotPrefab, _gridLayoutGroup.transform);
             _inventoryPanel.SetActive(false);
@@ -57,18 +58,41 @@ namespace Game.UI {
 
         private void OnEnable() {
             UpdateUI();
-            //InputHandler.Instance.EnableUIInput();
+            if(InputHandler.Instance) {
+                InputHandler.Instance.AddCallback(InputHandler.Instance.UIActions.DeleteSelection, DeleteSelection, InputActionPhase.Performed);
+            }
         }
         private void OnDisable() {
-            //InputHandler.Instance.EnablePlayerInput();
+            if(InputHandler.Instance) {
+                InputHandler.Instance.RemoveCallback(InputHandler.Instance.UIActions.DeleteSelection, DeleteSelection, InputActionPhase.Performed);
+            }
         }
+
+        private void DeleteSelection(InputAction.CallbackContext context) {
+            if(CurrentSelection.x < 0) {//no selection
+                return;
+            }
+            InventoryManager.Instance?.TryRemoveItem(CurrentSelection);
+            CurrentSelection = _defaultSelectionValue;
+        }
+
 
         public void ShowInventoryPanel(bool show) {
             _inventoryPanel.SetActive(show);
         }
 
-        public void SelectSlot(int x, int y) {
-            CurrentSelection = new Vector2Int(x, y);
+        public void SelectSlot(Vector2Int position) {
+            if(CurrentSelection.x < 0) {
+                CurrentSelection = new Vector2Int(position.x, position.y);
+                return;
+            }
+            if(CurrentSelection == position) {//Deselect
+                CurrentSelection = _defaultSelectionValue;
+                return;
+            }
+            InventoryManager.Instance.TryMoveItem(CurrentSelection, position);
+            CurrentSelection = _defaultSelectionValue;
+
         }
 
         private void CheckState(GameStateManager.GameState state) {
@@ -116,6 +140,14 @@ namespace Game.UI {
             if(index < _uiSlots.Count) {
                 _selectionInstance.transform.position = _uiSlots[index].transform.position;
                 _selectionInstance.SetActive(true);
+            }
+        }
+
+        internal void OnSlotClicked(InventorySlotUI inventorySlotUI, PointerEventData eventData) {
+            if(eventData.button == PointerEventData.InputButton.Right) {//use item
+                InventoryManager.Instance.TryUseItem(inventorySlotUI.Position);
+            } else if(eventData.button == PointerEventData.InputButton.Left) {//select item slot
+                SelectSlot(inventorySlotUI.Position);
             }
         }
     }

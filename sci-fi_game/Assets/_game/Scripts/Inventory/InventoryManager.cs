@@ -74,23 +74,26 @@ namespace Game.Inventory {
             return amount <= 0;
         }
 
-
+        public bool TryRemoveItem(Vector2Int itemPos) {
+            if(_inventoryGrid[itemPos.x, itemPos.y] == null) {
+                return false;
+            }
+            return TryRemoveItem(itemPos, _inventoryGrid[itemPos.x, itemPos.y].amount);
+        }
         public bool TryRemoveItem(Vector2Int itemPos, int amount) {
             if(!IsPositionValid(itemPos)) {
                 return false;
             }
-            if(_inventoryGrid[itemPos.x, itemPos.y] != null) {
-
-                _inventoryGrid[itemPos.x, itemPos.y].amount -= amount;
-                if(_inventoryGrid[itemPos.x, itemPos.y].amount <= 0) {
-                    _inventoryGrid[itemPos.x, itemPos.y] = null;
-                }
-
-                OnInventoryUpdated?.Invoke();
-                return true;
+            if(_inventoryGrid[itemPos.x, itemPos.y] == null) {
+                return false;
+            }
+            _inventoryGrid[itemPos.x, itemPos.y].amount -= amount;
+            if(_inventoryGrid[itemPos.x, itemPos.y].amount <= 0) {
+                _inventoryGrid[itemPos.x, itemPos.y] = null;
             }
 
-            return false;
+            OnInventoryUpdated?.Invoke();
+            return true;
         }
         public bool TryMoveItem(Vector2Int posA, Vector2Int posB) {
             if(!IsPositionValid(posA) || !IsPositionValid(posB)) {
