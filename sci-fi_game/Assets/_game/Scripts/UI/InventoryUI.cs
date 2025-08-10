@@ -1,4 +1,5 @@
-﻿using Game.Input;
+﻿using Game.GameLoop;
+using Game.Input;
 using Game.Inventory;
 using System;
 using System.Collections;
@@ -9,6 +10,7 @@ using UnityEngine.UI;
 namespace Game.UI {
     public class InventoryUI : MonoBehaviour {
 
+
         [SerializeField] private GameObject _inventoryPanel;
         [SerializeField] private GridLayoutGroup _gridLayoutGroup;
         [SerializeField] private GameObject _uiSlotPrefab;
@@ -17,7 +19,6 @@ namespace Game.UI {
         private GameObject _selectionInstance;
         private List<InventorySlotUI> _uiSlots;
         private Vector2Int _currentSelection;
-
 
         private Vector2Int CurrentSelection {
             get => _currentSelection;
@@ -28,12 +29,11 @@ namespace Game.UI {
 
         }
 
-
-
         private void Awake() {
             _currentSelection = new Vector2Int(-1, -1);// no selection
             _uiSlots = new List<InventorySlotUI>();
-
+            _selectionInstance = Instantiate(_uiSelectedSlotPrefab, _gridLayoutGroup.transform);
+            _inventoryPanel.SetActive(false);
         }
         private void Start() {
 
@@ -41,19 +41,18 @@ namespace Game.UI {
                 _inventoryPanel.SetActive(false);
                 return;
             }
-
+            GameStateManager.OnStateChanged += CheckState;
             InitializeUI();
 
             InventoryManager.Instance.OnInventoryUpdated += UpdateUI;
             UpdateUI();
         }
 
-
-
         private void OnDestroy() {
             if(InventoryManager.Instance != null) {
                 InventoryManager.Instance.OnInventoryUpdated -= UpdateUI;
             }
+            GameStateManager.OnStateChanged -= CheckState;
         }
 
         private void OnEnable() {
@@ -64,9 +63,20 @@ namespace Game.UI {
             //InputHandler.Instance.EnablePlayerInput();
         }
 
+        public void ShowInventoryPanel(bool show) {
+            _inventoryPanel.SetActive(show);
+        }
+
+        public void SelectSlot(int x, int y) {
+            CurrentSelection = new Vector2Int(x, y);
+        }
+
+        private void CheckState(GameStateManager.GameState state) {
+            ShowInventoryPanel(state == GameStateManager.GameState.InventoryMenu);
+        }
+
         private void InitializeUI() {
 
-            _selectionInstance = Instantiate(_uiSelectedSlotPrefab, _gridLayoutGroup.transform);
             _selectionInstance.SetActive(false);
 
             Vector2Int dimensions = InventoryManager.Instance.Dimensions;
@@ -95,10 +105,6 @@ namespace Game.UI {
                 slotUI.UpdateVisuals(inventorySlot);
             }
             UpdateSelectionUI();
-        }
-
-        public void SelectSlot(int x, int y) {
-            CurrentSelection = new Vector2Int(x, y);
         }
 
         private void UpdateSelectionUI() {

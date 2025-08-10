@@ -3,21 +3,18 @@ using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Game.UI {
     public class InventorySlotUI : MonoBehaviour {
 
         public Vector2Int Position { get=> _position;}
 
-        [SerializeField] private Vector2Int _position;
+        [SerializeField] private Image _iconImage;
+        [SerializeField] private TextMeshProUGUI _amountText;
 
-        private SpriteRenderer _iconRenderer;
-        private TextMeshProUGUI _amountText;
+        private Vector2Int _position;
         private InventoryUI _inventoryUIRef;
-        private void Start() {
-            _iconRenderer = GetComponent<SpriteRenderer>();
-            _amountText = GetComponent<TextMeshProUGUI>();
-        }
 
 
         public void Init(int x, int y, InventoryUI parent) {
@@ -26,7 +23,12 @@ namespace Game.UI {
         }
 
         public void UpdateVisuals(InventorySlot inventorySlot) {
-            _iconRenderer.sprite = inventorySlot.itemData.icon;
+            if(inventorySlot == null) {
+                _iconImage.sprite = null;
+                _amountText.text = string.Empty;
+                return;
+            }
+            _iconImage.sprite = inventorySlot.itemData.icon;
             _amountText.text = inventorySlot.amount > 1 ? inventorySlot.amount.ToString() : string.Empty;
         }
     }

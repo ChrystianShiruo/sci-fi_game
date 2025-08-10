@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
-  m_Name: MountainKingLootData
-  m_EditorClassIdentifier: Assembly-CSharp:Game.Item.Data:MiscItemData
+  m_Script: {fileID: 11500000, guid: 0487274b3a41d294a8fabe738f60fb6f, type: 3}
+  m_Name: MountainKingAxe
+  m_EditorClassIdentifier: 
   itemName: Mountain King Axe
   description: Too heavy and large for you to use, but should be worth a lot back
     at the town, good thing it fits in your pocket at least.
