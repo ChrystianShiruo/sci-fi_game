@@ -1,4 +1,5 @@
 ﻿using Game.Inventory;
+using Game.Item.Data;
 using System;
 using System.Collections;
 using TMPro;
@@ -7,7 +8,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Game.UI {
-    public class InventorySlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IEndDragHandler, IDragHandler, IDropHandler {
+    public class InventorySlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IEndDragHandler, IDragHandler, IDropHandler, IPointerEnterHandler, IPointerExitHandler {
 
         public Vector2Int Position { get => _position; }
         public Image IconImage { get => _iconImage; }
@@ -19,6 +20,7 @@ namespace Game.UI {
         private Vector2Int _position;
         private InventoryUI _inventoryUIRef;
         private GameObject _dragObject;
+        private Coroutine _tooltipCoroutine;
         public void Init(int x, int y, InventoryUI parent) {
             _position = new Vector2Int(x, y);
             _inventoryUIRef = parent;
@@ -41,6 +43,8 @@ namespace Game.UI {
         }
 
         public void OnBeginDrag(PointerEventData eventData) {
+            TooltipUI.Instance.ShowTooltip(false);
+
             if(InventoryManager.Instance.GetSlot(Position) == null) {
                 eventData.pointerDrag = null;
                 return;
@@ -62,5 +66,32 @@ namespace Game.UI {
         public void OnDrop(PointerEventData eventData) {
             _inventoryUIRef.OnDrop(this);
         }
+
+        public void OnPointerEnter(PointerEventData eventData) {
+
+            InventorySlot inventorySlot = InventoryManager.Instance.GetSlot(Position);
+            if(inventorySlot == null) {
+                return;
+            }
+            _tooltipCoroutine = StartCoroutine(ShowTooltipRoutine(.5f, inventorySlot.itemData));
+        
+        }       
+
+        public void OnPointerExit(PointerEventData eventData) {
+            if(_tooltipCoroutine != null) {
+                StopCoroutine(_tooltipCoroutine);
+                _tooltipCoroutine = null;
+            }
+            TooltipUI.Instance.ShowTooltip(false);
+        }
+
+        private IEnumerator ShowTooltipRoutine(float delay, ItemData itemData) {
+
+            yield return new WaitForSeconds(delay);
+            TooltipUI.Instance.ShowTooltip(true, itemData.itemName, itemData.description);
+            _tooltipCoroutine = null;
+        }
+
+
     }
 }
