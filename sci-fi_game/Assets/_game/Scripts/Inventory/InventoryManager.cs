@@ -1,6 +1,7 @@
 using Game.DataManagement;
 using Game.Item.Data;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -10,14 +11,18 @@ namespace Game.Inventory {
         public static InventoryManager Instance { get; private set; }
         public Vector2Int Dimensions { get => new Vector2Int(_width, _height); }
 
+        public WeaponData CurrentWeapon { get => _weaponSlot.itemData as WeaponData; }
+        public InventorySlot WeaponSlot { get => _weaponSlot; }
+
         public Action OnInventoryUpdated;
+        public Action OnEquipmentUpdated;
 
 
         [SerializeField] private int _width;
         [SerializeField] private int _height;
 
         private InventorySlot[,] _inventoryGrid;
-
+        private InventorySlot _weaponSlot;
         private void Awake() {
 
             if(Instance != null && Instance != this) {
@@ -27,6 +32,7 @@ namespace Game.Inventory {
 
             Instance = this;
             _inventoryGrid = new InventorySlot[_width, _height];
+            _weaponSlot = new InventorySlot(null, 1);
         }
 
         public InventorySlot GetSlot(Vector2Int position) {
@@ -35,6 +41,9 @@ namespace Game.Inventory {
 
         //Adapted from old project script
         public bool TryAddItem(ItemData itemData, int amount) {
+            if(itemData == null) {
+                return false;
+            }
             if(itemData.maxStackAmount > 1) {
                 for(int y = 0; y < _height; y++) {
                     for(int x = 0; x < _width; x++) {
@@ -137,25 +146,52 @@ namespace Game.Inventory {
             return pos.x >= 0 && pos.x < _width && pos.y >= 0 && pos.y < _height;
         }
 
-        public SaveData GetSaveData( ItemDatabase itemDatabase) {
-            SaveData saveData = new SaveData();
+        public bool TryEquipWeapon(WeaponData weaponData) {
+            //Vector2Int pos = new Vector2Int(-1, -1);
+            //for(int y = 0; y < _height; y++) {
+            //    for(int x = 0; x < _width; x++) {
+            //        if(_inventoryGrid[x, y].itemData == weaponData) {
+            //            pos = new Vector2Int(x, y);
+            //        }
+            //    }
+            //}
 
+            ItemData currentWeapon = null;
+            if(_weaponSlot != null) {
+                currentWeapon = _weaponSlot.itemData;
+            }
+            _weaponSlot.itemData = weaponData;
+            if(currentWeapon != null) {
+                TryAddItem(currentWeapon, 1);
+            }
+            OnEquipmentUpdated?.Invoke();
+            return true;
+        }
+
+        public SaveData GetSaveData(ItemDatabase itemDatabase) {
+            SaveData saveData = new SaveData();
+            string guid;
             for(int y = 0; y < _height; y++) {
                 for(int x = 0; x < _width; x++) {
                     if(_inventoryGrid[x, y] != null) {
-                        string guid = itemDatabase.GetGuidByItem(_inventoryGrid[x,y].itemData);
+                        guid = itemDatabase.GetGuidByItem(_inventoryGrid[x, y].itemData);
                         int amount = _inventoryGrid[x, y].amount;
                         saveData.slots.Add(new SerializableInventorySlot(guid, amount, x, y));
                     }
 
                 }
             }
+            if(CurrentWeapon != null) {
+                guid = itemDatabase.GetGuidByItem(CurrentWeapon);
+                saveData.equipment_handR = (new SerializableInventorySlot(guid, 1, -1, -1));
+            } else {
+                saveData.equipment_handR = null;
+            }
             return saveData;
         }
         public void LoadSaveData(SaveData saveData, ItemDatabase itemDatabase) {
             _inventoryGrid = new InventorySlot[_width, _height];
-
-            foreach (SerializableInventorySlot slot in saveData.slots) {
+            foreach(SerializableInventorySlot slot in saveData.slots) {
                 ItemData itemData = itemDatabase.GetItemByGuid(slot.itemId);
 
                 if(itemData != null) {
@@ -164,7 +200,11 @@ namespace Game.Inventory {
                     Debug.LogError($" Unable to load item with GUID: {slot.itemId}");
                 }
             }
-
+            if(!String.IsNullOrEmpty(saveData.equipment_handR.itemId)) {
+                ItemData equipData = itemDatabase.GetItemByGuid(saveData.equipment_handR.itemId);
+                _weaponSlot = new InventorySlot(equipData, 1);
+                OnEquipmentUpdated?.Invoke();
+            }
             OnInventoryUpdated?.Invoke();
         }
 
