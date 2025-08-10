@@ -11,11 +11,14 @@ using UnityEngine.UI;
 namespace Game.UI {
     public class InventoryUI : MonoBehaviour {
 
-
+        [SerializeField] private Image _dragIcon;
+        [Space()]
         [SerializeField] private GameObject _inventoryPanel;
         [SerializeField] private GridLayoutGroup _gridLayoutGroup;
         [SerializeField] private GameObject _uiSlotPrefab;
         [SerializeField] private GameObject _uiSelectedSlotPrefab;
+
+        private InventorySlotUI _draggedSlot;
 
         private GameObject _selectionInstance;
         private List<InventorySlotUI> _uiSlots;
@@ -31,7 +34,7 @@ namespace Game.UI {
         }
 
         private void Awake() {
-            CurrentSelection = _defaultSelectionValue;
+            _currentSelection = _defaultSelectionValue;
             _uiSlots = new List<InventorySlotUI>();
             _selectionInstance = Instantiate(_uiSelectedSlotPrefab, _gridLayoutGroup.transform);
             _inventoryPanel.SetActive(false);
@@ -143,12 +146,48 @@ namespace Game.UI {
             }
         }
 
-        internal void OnSlotClicked(InventorySlotUI inventorySlotUI, PointerEventData eventData) {
+        public void OnSlotClicked(InventorySlotUI inventorySlotUI, PointerEventData eventData) {
             if(eventData.button == PointerEventData.InputButton.Right) {//use item
                 InventoryManager.Instance.TryUseItem(inventorySlotUI.Position);
             } else if(eventData.button == PointerEventData.InputButton.Left) {//select item slot
                 SelectSlot(inventorySlotUI.Position);
             }
         }
+
+        #region Drag
+        public void OnBeginDrag(InventorySlotUI slot, PointerEventData eventData) {
+            if(InventoryManager.Instance.GetSlot(slot.Position)== null) {
+                return;
+            }
+            _draggedSlot = slot;
+            _dragIcon.sprite = _draggedSlot.IconImage.sprite;
+            _dragIcon.gameObject.SetActive(true);
+            _dragIcon.transform.position = eventData.position;
+
+            _selectionInstance.SetActive(false);
+        }
+
+        public void OnDrag(PointerEventData eventData) {
+            if(_dragIcon.gameObject.activeInHierarchy) {
+                _dragIcon.transform.position = eventData.position;
+            }
+        }
+
+        public void OnEndDrag() {
+            _dragIcon.gameObject.SetActive(false);
+            _draggedSlot = null;
+            CurrentSelection = _defaultSelectionValue;
+        }
+
+        public void OnDrop(InventorySlotUI targetSlot) {
+            if(_draggedSlot == null) {
+                return;
+            }
+
+            InventoryManager.Instance?.TryMoveItem(_draggedSlot.Position, targetSlot.Position);
+
+            OnEndDrag();
+        }
+        #endregion
     }
 }

@@ -7,16 +7,18 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Game.UI {
-    public class InventorySlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IEndDragHandler {
+    public class InventorySlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IEndDragHandler, IDragHandler, IDropHandler {
 
         public Vector2Int Position { get => _position; }
+        public Image IconImage { get => _iconImage; }
+
 
         [SerializeField] private Image _iconImage;
         [SerializeField] private TextMeshProUGUI _amountText;
 
         private Vector2Int _position;
         private InventoryUI _inventoryUIRef;
-
+        private GameObject _dragObject;
         public void Init(int x, int y, InventoryUI parent) {
             _position = new Vector2Int(x, y);
             _inventoryUIRef = parent;
@@ -39,14 +41,26 @@ namespace Game.UI {
         }
 
         public void OnBeginDrag(PointerEventData eventData) {
-            //hide icon
-            //create icon copy to drag
+            if(InventoryManager.Instance.GetSlot(Position) == null) {
+                eventData.pointerDrag = null;
+                return;
+            }
+
+            _inventoryUIRef.OnBeginDrag(this, eventData);
+            _iconImage.enabled = false;
+            _amountText.enabled = false;
         }
 
         public void OnEndDrag(PointerEventData eventData) {
-            //show icon
+            _inventoryUIRef.OnEndDrag();
+        }
 
-            //call trymoveitem through InventoryUI
+        public void OnDrag(PointerEventData eventData) {
+            _inventoryUIRef.OnDrag(eventData);
+        }
+
+        public void OnDrop(PointerEventData eventData) {
+            _inventoryUIRef.OnDrop(this);
         }
     }
 }
