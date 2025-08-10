@@ -26,18 +26,16 @@ namespace Game.UI {
             _inventoryUIRef = parent;
         }
 
-        public void UpdateVisuals(InventorySlot inventorySlot) {
-            if(inventorySlot == null) {
-                _iconImage.enabled = false;
-                _iconImage.sprite = null;
-                _amountText.text = string.Empty;
-                return;
-            }
-            _iconImage.enabled = true;
-            _iconImage.sprite = inventorySlot.itemData.icon;
-            _amountText.text = inventorySlot.amount > 1 ? inventorySlot.amount.ToString() : string.Empty;
-        }
+        private void OnDisable() {
+            if(_tooltipCoroutine != null) {
 
+                StopCoroutine(_tooltipCoroutine);
+                _tooltipCoroutine = null;
+            }
+            if(TooltipUI.Instance != null) {
+                TooltipUI.Instance.ShowTooltip(false);
+            }
+        }
         public void OnPointerClick(PointerEventData eventData) {
             _inventoryUIRef.OnSlotClicked(this, eventData);
         }
@@ -78,16 +76,29 @@ namespace Game.UI {
         }       
 
         public void OnPointerExit(PointerEventData eventData) {
+
             if(_tooltipCoroutine != null) {
+
                 StopCoroutine(_tooltipCoroutine);
                 _tooltipCoroutine = null;
             }
             TooltipUI.Instance.ShowTooltip(false);
         }
 
-        private IEnumerator ShowTooltipRoutine(float delay, ItemData itemData) {
+        public void UpdateVisuals(InventorySlot inventorySlot) {
+            if(inventorySlot == null) {
+                _iconImage.enabled = false;
+                _iconImage.sprite = null;
+                _amountText.text = string.Empty;
+                return;
+            }
+            _iconImage.enabled = true;
+            _iconImage.sprite = inventorySlot.itemData.icon;
+            _amountText.text = inventorySlot.amount > 1 ? inventorySlot.amount.ToString() : string.Empty;
+        }
 
-            yield return new WaitForSeconds(delay);
+        private IEnumerator ShowTooltipRoutine(float delay, ItemData itemData) {
+            yield return new WaitForSecondsRealtime(delay);
             TooltipUI.Instance.ShowTooltip(true, itemData.itemName, itemData.description);
             _tooltipCoroutine = null;
         }
