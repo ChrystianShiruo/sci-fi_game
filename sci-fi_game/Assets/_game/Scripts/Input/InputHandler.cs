@@ -62,8 +62,9 @@ namespace Game.Input {
         }
 
         public void AddCallback(InputAction inputAction, Action<InputAction.CallbackContext> callback, InputActionPhase inputActionPhase) {
-            GetPhaseDictionary(inputActionPhase).TryAdd(inputAction, new List<Action<InputAction.CallbackContext>>());
-            GetPhaseDictionary(inputActionPhase)[inputAction].Add(callback);
+            if(GetPhaseDictionary(inputActionPhase).TryAdd(inputAction, new List<Action<InputAction.CallbackContext>>())) {
+                GetPhaseDictionary(inputActionPhase)[inputAction].Add(callback);
+            }
         }
         public void RemoveCallback(InputAction inputAction, Action<InputAction.CallbackContext> callback, InputActionPhase inputActionPhase) {
             if(GetPhaseDictionary(inputActionPhase).TryGetValue(inputAction, out var callbacks)) {
