@@ -1,3 +1,4 @@
+using Game.DataManagement;
 using Game.Input;
 using Game.UI;
 using System;
@@ -31,6 +32,8 @@ namespace Game.GameLoop {
                 (_) => CloseInventory(), UnityEngine.InputSystem.InputActionPhase.Performed);
             InputHandler.Instance.AddCallback(InputHandler.Instance.UIActions.CloseMenu,
                 (_) => SetGameState(GameState.Gameplay), UnityEngine.InputSystem.InputActionPhase.Performed);
+
+            SaveManager.Instance.LoadInventory();
         }
         private void OnDestroy() {
             InputHandler.Instance.RemoveCallback(InputHandler.Instance.PlayerActions.OpenInventory,

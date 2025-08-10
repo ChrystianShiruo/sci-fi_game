@@ -1,3 +1,4 @@
+using Game.DataManagement;
 using Game.Item.Data;
 using System;
 using UnityEngine;
@@ -100,8 +101,6 @@ namespace Game.Inventory {
                 return false;
             }
 
-            //InventorySlot slotA = _inventoryGrid[posA.x, posA.y] == null ? null :
-            //    new InventorySlot(_inventoryGrid[posA.x, posA.y].itemData, _inventoryGrid[posA.x, posA.y].amount);
             InventorySlot slotA = _inventoryGrid[posA.x, posA.y];
             _inventoryGrid[posA.x, posA.y] = _inventoryGrid[posB.x, posB.y];
             _inventoryGrid[posB.x, posB.y] = slotA;
@@ -110,6 +109,9 @@ namespace Game.Inventory {
             return true;
         }
         public bool TryUseItem(Vector2Int itemPos) {
+            if(_inventoryGrid[itemPos.x, itemPos.y] == null) {
+                return false;
+            }
             UseResult itemUseResult = _inventoryGrid[itemPos.x, itemPos.y].itemData.Use();
 
             switch(itemUseResult.InventoryAction) {
@@ -134,5 +136,38 @@ namespace Game.Inventory {
         private bool IsPositionValid(Vector2Int pos) {
             return pos.x >= 0 && pos.x < _width && pos.y >= 0 && pos.y < _height;
         }
+
+        public SaveData GetSaveData( ItemDatabase itemDatabase) {
+            SaveData saveData = new SaveData();
+
+            for(int y = 0; y < _height; y++) {
+                for(int x = 0; x < _width; x++) {
+                    if(_inventoryGrid[x, y] != null) {
+                        string guid = itemDatabase.GetGuidByItem(_inventoryGrid[x,y].itemData);
+                        int amount = _inventoryGrid[x, y].amount;
+                        saveData.slots.Add(new SerializableInventorySlot(guid, amount, x, y));
+                    }
+
+                }
+            }
+            return saveData;
+        }
+        public void LoadSaveData(SaveData saveData, ItemDatabase itemDatabase) {
+            _inventoryGrid = new InventorySlot[_width, _height];
+
+            foreach (SerializableInventorySlot slot in saveData.slots) {
+                ItemData itemData = itemDatabase.GetItemByGuid(slot.itemId);
+
+                if(itemData != null) {
+                    _inventoryGrid[slot.posX, slot.posY] = new InventorySlot(itemData, slot.amount);
+                } else {
+                    Debug.LogError($" Unable to load item with GUID: {slot.itemId}");
+                }
+            }
+
+            OnInventoryUpdated?.Invoke();
+        }
+
+
     }
 }
